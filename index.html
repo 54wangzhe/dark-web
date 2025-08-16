@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>暗网 - 超绝猎奇网站</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              900: '#0F0F12',
+              800: '#18181B',
+              700: '#27272A',
+              600: '#3F3F46',
+              500: '#52525B'
+            },
+            platform: {
+              bilibili: '#FB7299',
+              douyin: '#000000',
+              xhs: '#FE2C55',
+              kuaishou: '#00C6FF'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      }
+      .backdrop-blur {
+        backdrop-filter: blur(8px);
+      }
+      .scrollbar-thin {
+        scrollbar-width: thin;
+      }
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: rgba(90, 90, 90, 0.5);
+        border-radius: 2px;
+      }
+      .glow {
+        box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+      }
+    }
+  </style>
+  
+  <style>
+    body {
+      background-color: #0F0F12;
+      color: #F3F4F6;
+      transition: background 0.5s ease;
+    }
+    
+    /* 动画效果 */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .slide-up {
+      animation: slideUp 0.4s ease-out forwards;
+    }
+    
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* 视频卡片悬停效果 */
+    .video-card {
+      transition: all 0.3s ease;
+    }
+    .video-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    /* 加载动画 */
+    .loader {
+      border-top-color: #06B6D4;
+      animation: spinner 0.6s linear infinite;
+    }
+    @keyframes spinner {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* 平滑滚动 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 背景图效果 */
+    .bg-with-overlay {
+      position: relative;
+    }
+    .bg-with-overlay::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(15, 15, 18, 0.9);
+      z-index: -1;
+    }
+    
+    /* 按钮效果 */
+    .btn-effect {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-effect::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300%;
+      height: 300%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: translate(-50%, -50%) rotate(45deg);
+      transition: all 0.6s ease;
+    }
+    
+    .btn-effect:hover::after {
+      width: 0;
+      height: 0;
+    }
+    
+    /* 平台徽章 */
+    .platform-badge {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .platform-badge::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.2;
+      transition: opacity 0.3s ease;
+    }
+    
+    .platform-badge:hover::before {
+      opacity: 0.3;
+    }
+    
+    .badge-bilibili::before { background-color: #FB7299; }
+    .badge-douyin::before { background-color: #000000; }
+    .badge-xhs::before { background-color: #FE2C55; }
+    .badge-kuaishou::before { background-color: #00C6FF; }
+  </style>
+</head>
+
+<body id="appBody" class="font-sans relative z-0">
+  <!-- 通知提示组件 -->
+  <div id="notification" class="fixed top-4 right-4 z-50 hidden px-4 py-3 rounded-lg shadow-lg max-w-xs"></div>
+
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed top-0 left-0 right-0 z-40 transition-all duration-300 bg-dark-900/80 backdrop-blur">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center">
+        <a href="#" class="text-2xl font-bold text-white flex items-center gap-2">
+          <span class="text-accent-cyan"><i class="fa fa-globe"></i></span>
+          <span>暗网</span>
+        </a>
+      </div>
+      
+      <!-- 导航链接 - 桌面版 -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="#" class="text-white hover:text-accent-cyan transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-accent-cyan after:transition-all after:duration-300">首页</a>
+        <a href="#categories" class="text-gray-300 hover:text-accent-cyan transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-accent-cyan after:transition-all after:duration-300">分类</a>
+        <a href="#recommended" class="text-gray-300 hover:text-accent-cyan transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-accent-cyan after:transition-all after:duration-300">推荐</a>
+      </nav>
+      
+      <!-- 搜索和用户区域 -->
+      <div class="flex items-center gap-4">
+        <!-- 搜索框 -->
+        <div class="relative hidden md:block group">
+          <input type="text" placeholder="搜索视频..." 
+                 class="bg-dark-700 text-gray-200 rounded-full py-2 pl-10 pr-4 w-64 focus:outline-none focus:ring-2 focus:ring-accent-cyan/50 transition-all group-hover:bg-dark-600">
+          <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-gray-300 transition-colors"></i>
+        </div>
+        
+        <!-- 管理员登录/管理按钮 -->
+        <button id="adminBtn" class="bg-dark-700 hover:bg-dark-600 text-gray-200 px-4 py-2 rounded-full flex items-center gap-2 transition-all btn-effect">
+          <i class="fa fa-lock"></i>
+          <span class="hidden sm:inline" id="adminBtnText">管理员</span>
+        </button>
+        
+        <!-- 移动端菜单按钮 -->
+        <button id="mobileMenuBtn" class="md:hidden text-gray-200 text-xl hover:text-white transition-colors">
+          <i class="fa fa-bars"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div id="mobileMenu" class="md:hidden hidden bg-dark-800 border-t border-dark-700 slide-up">
+      <div class="container mx-auto px-4 py-3">
+        <div class="relative mb-4">
+          <input type="text" placeholder="搜索视频..." 
+                 class="bg-dark-700 text-gray-200 rounded-full py-2 pl-10 pr-4 w-full focus:outline-none focus:ring-2 focus:ring-accent-cyan/50">
+          <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+        <nav class="flex flex-col space-y-3 pb-3">
+          <a href="#" class="text-white hover:text-accent-cyan transition-colors py-2">首页</a>
+          <a href="#categories" class="text-gray-300 hover:text-accent-cyan transition-colors py-2">分类</a>
+          <a href="#recommended" class="text-gray-300 hover:text-accent-cyan transition-colors py-2">推荐</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="pt-16">
+    <!-- 英雄区域 - 视频播放器 -->
+    <section class="relative bg-dark-900">
+      <div class="container mx-auto px-4 py-8">
+        <div class="mb-6">
+          <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-white mb-2">多平台猎奇视频</h1>
+        </div>
+        
+        <!-- 平台选择 -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button class="platform-btn platform-badge badge-bilibili bg-dark-700 hover:bg-dark-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all active" data-platform="bilibili">
+            <i class="fa fa-play-circle"></i> B站
+          </button>
+          <button class="platform-btn platform-badge badge-douyin bg-dark-700 hover:bg-dark-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all" data-platform="douyin">
+            <i class="fa fa-music"></i> 抖音
+          </button>
+          <button class="platform-btn platform-badge badge-xhs bg-dark-700 hover:bg-dark-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all" data-platform="xhs">
+            <i class="fa fa-book"></i> 小红书
+          </button>
+          <button class="platform-btn platform-badge badge-kuaishou bg-dark-700 hover:bg-dark-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all" data-platform="kuaishou">
+            <i class="fa fa-video-camera"></i> 快手
+          </button>
+        </div>
+        
+        <!-- 视频ID输入区 -->
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+          <div class="flex-1 relative">
+            <input type="text" id="videoIdInput" placeholder="例如: BV1xx411c7mG" 
+                   class="w-full bg-dark-800 border border-dark-600 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-accent-cyan transition-all">
+          </div>
+          <button id="loadVideoBtn" class="bg-accent-cyan hover:bg-accent-cyan/90 text-white font-medium px-6 py-3 rounded-lg flex items-center gap-2 transition-all btn-effect">
+            <i class="fa fa-play"></i>
+            <span>加载视频</span>
+          </button>
+        </div>
+        
+        <!-- 视频播放区域 -->
+        <div id="videoContainer" class="relative w-full aspect-video bg-dark-800 rounded-xl overflow-hidden shadow-lg">
+          <!-- 初始状态提示 -->
+          <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 loader rounded-full border-4 border-dark-600 mb-4"></div>
+            <p class="text-gray-400">请选择平台并输入视频ID加载视频</p>
+          </div>
+          
+          <!-- 视频加载错误提示 -->
+          <div id="videoError" class="absolute inset-0 flex flex-col items-center justify-center hidden">
+            <i class="fa fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+            <p class="text-gray-400 mb-2">视频加载失败</p>
+            <p class="text-gray-500 text-sm" id="errorMessage">请检查视频ID是否正确或稍后再试</p>
+            <button id="retryLoadBtn" class="mt-4 bg-dark-600 hover:bg-dark-500 text-gray-200 px-4 py-2 rounded-lg transition-all">
+              重试
+            </button>
+          </div>
+          
+          <!-- 视频播放器将在这里动态加载 -->
+          <iframe id="videoPlayer" class="w-full h-full hidden" frameborder="0" allowfullscreen></iframe>
+        </div>
+        
+        <!-- 视频信息 -->
+        <div id="videoInfo" class="mt-6 hidden slide-up">
+          <div class="flex items-center gap-2 mb-2">
+            <span id="platformBadge" class="text-xs px-2 py-1 rounded-full"></span>
+            <h2 id="videoTitle" class="text-2xl font-bold text-white"></h2>
+          </div>
+          <div class="flex flex-wrap items-center gap-4 text-gray-400 mb-4">
+            <span id="videoAuthor"><i class="fa fa-user mr-1"></i></span>
+            <span id="videoViews"><i class="fa fa-eye mr-1"></i></span>
+            <span id="videoDate"><i class="fa fa-calendar mr-1"></i></span>
+            <span id="videoDuration"><i class="fa fa-clock-o mr-1"></i></span>
+          </div>
+          <p id="videoDescription" class="text-gray-300 bg-dark-800 p-4 rounded-lg border border-dark-700"></p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 推荐视频区 -->
+    <section id="recommended" class="py-12 bg-dark-800">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-2xl font-bold text-white">推荐视频</h2>
+          <span class="text-accent-cyan text-sm bg-accent-cyan/10 px-3 py-1 rounded-full">管理员精选</span>
+        </div>
+        
+        <div id="recommendedVideos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <!-- 推荐视频将通过JS动态加载 -->
+          <div class="col-span-full text-center py-12 text-gray-400">
+            <i class="fa fa-film text-4xl mb-4 text-gray-600"></i>
+            <p>管理员尚未添加推荐视频</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 分类区域 -->
+    <section id="categories" class="py-12 bg-dark-900">
+      <div class="container mx-auto px-4">
+        <h2 class="text-2xl font-bold text-white mb-8">视频分类</h2>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <a href="#" class="category-card bg-dark-700 hover:bg-dark-600 rounded-xl p-4 text-center transition-all group">
+            <div class="w-12 h-12 bg-accent-blue/20 group-hover:bg-accent-blue/30 rounded-full flex items-center justify-center mx-auto mb-3 transition-all">
+              <i class="fa fa-film text-accent-blue text-xl"></i>
+            </div>
+            <span class="text-gray-200">电影</span>
+          </a>
+          
+          <a href="#" class="category-card bg-dark-700 hover:bg-dark-600 rounded-xl p-4 text-center transition-all group">
+            <div class="w-12 h-12 bg-accent-purple/20 group-hover:bg-accent-purple/30 rounded-full flex items-center justify-center mx-auto mb-3 transition-all">
+              <i class="fa fa-television text-accent-purple text-xl"></i>
+            </div>
+            <span class="text-gray-200">电视剧</span>
+          </a>
+          
+          <a href="#" class="category-card bg-dark-700 hover:bg-dark-600 rounded-xl p-4 text-center transition-all group">
+            <div class="w-12 h-12 bg-accent-cyan/20 group-hover:bg-accent-cyan/30 rounded-full flex items-center justify-center mx-auto mb-3 transition-all">
+              <i class="fa fa-music text-accent-cyan text-xl"></i>
+            </div>
+            <span class="text-gray-200">音乐</span>
+          </a>
+          
+          <a href="#" class="category-card bg-dark-700 hover:bg-dark-600 rounded-xl p-4 text-center transition-all group">
+            <div class="w-12 h-12 bg-red-500/20 group-hover:bg-red-500/30 rounded-full flex items-center justify-center mx-auto mb-3 transition-all">
+              <i class="fa fa-gamepad text-red-500 text-xl"></i>
+            </div>
+            <span class="text-gray-200">游戏</span>
+          </a>
+          
+          <a href="#" class="category-card bg-dark-700 hover:bg-dark-600 rounded-xl p-4 text-center transition-all group">
+            <div class="w-12 h-12 bg-green-500/20 group-hover:bg-green-500/30 rounded-full flex items-center justify-center mx-auto mb-3 transition-all">
+              <i class="fa fa-graduation-cap text-green-500 text-xl"></i>
+            </div>
+            <span class="text-gray-200">教育</span>
+          </a>
+          
+          <a href="#" class="category-card bg-dark-700 hover:bg-dark-600 rounded-xl p-4 text-center transition-all group">
+            <div class="w-12 h-12 bg-yellow-500/20 group-hover:bg-yellow-500/30 rounded-full flex items-center justify-center mx-auto mb-3 transition-all">
+              <i class="fa fa-newspaper-o text-yellow-500 text-xl"></i>
+            </div>
+            <span class="text-gray-200">资讯</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark-900 border-t border-dark-700 py-10">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <span class="text-accent-cyan"><i class="fa fa-globe"></i></span>
+            <span>暗网</span>
+          </h3>
+          <p class="text-gray-400 mb-4">猎奇视频快捷播放，提供便捷的视频观看体验。</p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors"><i class="fa fa-weibo"></i></a>
+            <a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors"><i class="fa fa-wechat"></i></a>
+            <a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors"><i class="fa fa-github"></i></a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-white font-medium mb-4">快速链接</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors">首页</a></li>
+            <li><a href="#recommended" class="text-gray-400 hover:text-accent-cyan transition-colors">推荐视频</a></li>
+            <li><a href="#categories" class="text-gray-400 hover:text-accent-cyan transition-colors">视频分类</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-white font-medium mb-4">帮助中心</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors">使用指南</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors">常见问题</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors">联系我们</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-white font-medium mb-4">法律信息</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors">隐私政策</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors">使用条款</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-accent-cyan transition-colors">版权声明</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="border-t border-dark-700 mt-8 pt-8 text-center text-gray-500 text-sm">
+        <p>© 2023 暗网. 本网站仅提供视频播放服务，所有内容均来自各平台公开资源。</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 管理员登录模态框 -->
+  <div id="adminLoginModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 fade-in">
+    <div class="bg-dark-800 rounded-xl w-full max-w-md p-6 transform transition-all scale-95">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-white">管理员登录</h3>
+        <button class="closeModalBtn text-gray-400 hover:text-white transition-colors">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <form id="adminLoginForm">
+        <div class="mb-4">
+          <label for="adminUsername" class="block text-gray-300 mb-2 text-sm">用户名</label>
+          <input type="text" id="adminUsername" 
+                 class="w-full bg-dark-700 border border-dark-600 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-accent-cyan transition-all"
+                 placeholder="输入管理员用户名">
+        </div>
+        
+        <div class="mb-6">
+          <label for="adminPassword" class="block text-gray-300 mb-2 text-sm">密码</label>
+          <input type="password" id="adminPassword" 
+                 class="w-full bg-dark-700 border border-dark-600 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-accent-cyan transition-all"
+                 placeholder="输入管理员密码">
+        </div>
+        
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all btn-effect">
+          登录
+        </button>
+      </form>
+      
+      <div id="loginMessage" class="mt-4 text-center hidden"></div>
+    </div>
+  </div>
+
+  <!-- 管理员管理面板 -->
+  <div id="adminPanelModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 fade-in">
+    <div class="bg-dark-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 transform transition-all scale-95 scrollbar-thin">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-white">管理员控制面板</h3>
+        <div class="flex gap-2">
+          <button id="logoutBtn" class="bg-dark-700 hover:bg-dark-600 text-gray-200 px-3 py-1 rounded-lg transition-all text-sm btn-effect">
+            <i class="fa fa-sign-out mr-1"></i> 退出登录
+          </button>
+          <button class="closeModalBtn text-gray-400 hover:text-white transition-colors">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- 视频推荐管理 -->
+      <div class="mb-8">
+        <h4 class="text-lg font-medium text-white mb-4 flex items-center">
+          <i class="fa fa-thumbs-up text-accent-cyan mr-2"></i> 视频推荐管理
+        </h4>
+        
+        <div class="bg-dark-700 rounded-lg p-4 mb-4">
+          <!-- 平台选择 -->
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button class="admin-platform-btn platform-badge badge-bilibili bg-dark-800 hover:bg-dark-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all active" data-platform="bilibili">
+              B站
+            </button>
+            <button class="admin-platform-btn platform-badge badge-douyin bg-dark-800 hover:bg-dark-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all" data-platform="douyin">
+              抖音
+            </button>
+            <button class="admin-platform-btn platform-badge badge-xhs bg-dark-800 hover:bg-dark-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all" data-platform="xhs">
+              小红书
+            </button>
+            <button class="admin-platform-btn platform-badge badge-kuaishou bg-dark-800 hover:bg-dark-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-all" data-platform="kuaishou">
+              快手
+            </button>
+          </div>
+          
+          <div class="flex flex-col sm:flex-row gap-3 mb-3">
+            <input type="text" id="newVideoId" 
+                   class="flex-1 bg-dark-800 border border-dark-600 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-accent-cyan transition-all"
+                   placeholder="输入视频ID（例如：BV1xx411c7mG）">
+            <button id="addVideoBtn" class="bg-accent-cyan hover:bg-accent-cyan/90 text-white font-medium py-2 px-4 rounded-lg transition-all whitespace-nowrap btn-effect">
+              <i class="fa fa-plus mr-1"></i> 添加推荐
+            </button>
+          </div>
+          
+          <div id="videoList" class="space-y-2 max-h-60 overflow-y-auto pr-2 scrollbar-thin">
+            <!-- 视频列表将通过JS动态加载 -->
+            <div class="text-center py-4 text-gray-400 text-sm">
+              暂无推荐视频，请添加
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 背景设置 -->
+      <div class="mb-8">
+        <h4 class="text-lg font-medium text-white mb-4 flex items-center">
+          <i class="fa fa-image text-purple-500 mr-2"></i> 背景设置
+        </h4>
+        
+        <div class="bg-dark-700 rounded-lg p-4">
+          <div class="mb-4">
+            <label class="block text-gray-300 mb-2 text-sm">背景类型</label>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="bgType" value="color" checked class="text-accent-cyan">
+                <span class="text-gray-200">纯色背景</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="bgType" value="image" class="text-accent-cyan">
+                <span class="text-gray-200">图片背景</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- 纯色背景设置 -->
+          <div id="bgColorSettings" class="mb-4">
+            <label class="block text-gray-300 mb-2 text-sm">背景颜色</label>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <div class="flex gap-2 items-center">
+                <input type="color" id="bgColorPicker" value="#0F0F12" 
+                       class="w-10 h-10 p-0 border-0 rounded cursor-pointer">
+                <input type="text" id="bgColorCode" value="#0F0F12" 
+                       class="flex-1 bg-dark-800 border border-dark-600 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-accent-cyan transition-all">
+              </div>
+              <button id="applyColorBtn" class="bg-accent-cyan hover:bg-accent-cyan/90 text-white font-medium py-2 px-4 rounded-lg transition-all whitespace-nowrap btn-effect">
+                应用
+              </button>
+            </div>
+            
+            <div class="mt-3 grid grid-cols-5 gap-2">
+              <button class="bg-[#0F0F12] w-full h-8 rounded-full cursor-pointer preset-color" data-color="#0F0F12"></button>
+              <button class="bg-[#1A1A2E] w-full h-8 rounded-full cursor-pointer preset-color" data-color="#1A1A2E"></button>
+              <button class="bg-[#16213E] w-full h-8 rounded-full cursor-pointer preset-color" data-color="#16213E"></button>
+              <button class="bg-[#0B0C10] w-full h-8 rounded-full cursor-pointer preset-color" data-color="#0B0C10"></button>
+              <button class="bg-[#2D1B69] w-full h-8 rounded-full cursor-pointer preset-color" data-color="#2D1B69"></button>
+            </div>
+          </div>
+          
+          <!-- 图片背景设置 -->
+          <div id="bgImageSettings" class="mb-4 hidden">
+            <label class="block text-gray-300 mb-2 text-sm">背景图片URL</label>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input type="text" id="bgImageUrl" 
+                     placeholder="输入图片URL" 
+                     class="flex-1 bg-dark-800 border border-dark-600 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-accent-cyan transition-all">
+              <button id="applyImageBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all whitespace-nowrap btn-effect">
+                应用
+              </button>
+            </div>
+            
+            <div class="mt-3 grid grid-cols-3 gap-2">
+              <button class="h-20 rounded overflow-hidden preset-image" data-url="https://picsum.photos/id/1/800/450">
+                <img src="https://picsum.photos/id/1/800/450" alt="预设背景1" class="w-full h-full object-cover opacity-70 hover:opacity-100 transition-opacity">
+              </button>
+              <button class="h-20 rounded overflow-hidden preset-image" data-url="https://picsum.photos/id/235/800/450">
+                <img src="https://picsum.photos/id/235/800/450" alt="预设背景2" class="w-full h-full object-cover opacity-70 hover:opacity-100 transition-opacity">
+              </button>
+              <button class="h-20 rounded overflow-hidden preset-image" data-url="https://picsum.photos/id/180/800/450">
+                <img src="https://picsum.photos/id/180/800/450" alt="预设背景3" class="w-full h-full object-cover opacity-70 hover:opacity-100 transition-opacity">
+              </button>
+            </div>
+          </div>
+          
+          <button id="resetBgBtn" class="bg-dark-600 hover:bg-dark-500 text-gray-200 font-medium py-2 px-4 rounded-lg transition-all btn-effect">
+            <i class="fa fa-refresh mr-1"></i> 重置为默认背景
+          </button>
+        </div>
+      </div>
+      
+      <!-- 系统信息 -->
+      <div>
+        <h4 class="text-lg font-medium text-white mb-4 flex items-center">
+          <i class="fa fa-info-circle text-blue-500 mr-2"></i> 系统信息
+        </h4>
+        
+        <div class="bg-dark-700 rounded-lg p-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="text-gray-400">当前管理员</p>
+              <p class="text-gray-200 font-medium">crazycba</p>
+            </div>
+            <div>
+              <p class="text-gray-400">推荐视频数量</p>
+              <p class="text-gray-200 font-medium" id="recommendedCount">0</p>
+            </div>
+            <div>
+              <p class="text-gray-400">最后登录时间</p>
+              <p class="text-gray-200 font-medium" id="lastLoginTime">-</p>
+            </div>
+            <div>
+              <p class="text-gray-400">系统状态</p>
+              <p class="text-gray-200 font-medium"><span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>正常运行中</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认对话框 -->
+  <div id="confirmModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 fade-in">
+    <div class="bg-dark-800 rounded-xl w-full max-w-md p-6">
+      <h3 class="text-lg font-bold text-white mb-4" id="confirmTitle">确认操作</h3>
+      <p class="text-gray-300 mb-6" id="confirmMessage">您确定要执行此操作吗？</p>
+      <div class="flex gap-3">
+        <button id="confirmCancel" class="flex-1 bg-dark-700 hover:bg-dark-600 text-gray-200 font-medium py-2 px-4 rounded-lg transition-all btn-effect">
+          取消
+        </button>
+        <button id="confirmOk" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-all btn-effect">
+          确认
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // 平台配置 - 集中管理各平台信息和规则
+    const platforms = {
+      bilibili: {
+        name: "B站",
+        placeholder: "例如: BV1xx411c7mG 或 av123456",
+        pattern: /^(BV[0-9A-Za-z]+|av\d+)$/i,
+        embedUrl: (id) => {
+          if (id.toLowerCase().startsWith('bv')) {
+            return `https://player.bilibili.com/player.html?bvid=${id}&page=1`;
+          } else if (id.toLowerCase().startsWith('av')) {
+            return `https://player.bilibili.com/player.html?aid=${id.replace(/^av/i, '')}&page=1`;
+          }
+          return '';
+        },
+        badgeClass: 'bg-platform-bilibili/20 text-platform-bilibili',
+        badgeText: 'B站'
+      },
+      douyin: {
+        name: "抖音",
+        placeholder: "例如: 7123456789012345678",
+        pattern: /^\d{19}$/,
+        embedUrl: (id) => `https://www.douyin.com/video/${id}`,
+        badgeClass: 'bg-platform-douyin/20 text-platform-douyin',
+        badgeText: '抖音'
+      },
+      xhs: {
+        name: "小红书",
+        placeholder: "例如: XXXXXXXXXXXXX",
+        pattern: /^[0-9a-zA-Z]{13,16}$/,
+        embedUrl: (id) => `https://www.xiaohongshu.com/discovery/item/${id}`,
+        badgeClass: 'bg-platform-xhs/20 text-platform-xhs',
+        badgeText: '小红书'
+      },
+      kuaishou: {
+        name: "快手",
+        placeholder: "例如: XXXXXXXXXXXXX",
+        pattern: /^[0-9a-zA-Z]{11,15}$/,
+        embedUrl: (id) => `https://www.kuaishou.com/f/${id}`,
+        badgeClass: 'bg-platform-kuaishou/20 text-platform-kuaishou',
+        badgeText: '快手'
+      }
+    };
+
+    // 全局状态管理
+    const state = {
+      data: {
+        isAdminLoggedIn: false,
+        recommendedVideos: [],
+        background: {
+          type: 'color',
+          value: '#0F0F12'
+        },
+        currentPlatform: 'bilibili',
+        lastLoginTime: null
+      },
+      
+      // 初始化状态（从localStorage加载）
+      init() {
+        const savedVideos = localStorage.getItem('recommendedVideos');
+        const savedBg = localStorage.getItem('siteBackground');
+        const savedLoginTime = localStorage.getItem('lastLoginTime');
+        
+        if (savedVideos) {
+          try {
+            this.data.recommendedVideos = JSON.parse(savedVideos);
+          } catch (e) {
+            console.error('Failed to parse saved videos', e);
+            this.data.recommendedVideos = [];
+          }
+        }
+        
+        if (savedBg) {
+          try {
+            this.data.background = JSON.parse(savedBg);
+            this.applyBackground();
+          } catch (e) {
+            console.error('Failed to parse saved background', e);
+          }
+        }
+        
+        if (savedLoginTime) {
+          this.data.lastLoginTime = savedLoginTime;
+          document.getElementById('lastLoginTime').textContent = new Date(savedLoginTime).toLocaleString();
+        }
+        
+        this.data.isAdminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+        this.updateAdminUI();
+      },
+      
+      // 保存推荐视频
+      saveRecommendedVideos() {
+        localStorage.setItem('recommendedVideos', JSON.stringify(this.data.recommendedVideos));
+      },
+      
+      // 保存背景设置
+      saveBackground() {
+        localStorage.setItem('siteBackground', JSON.stringify(this.data.background));
+        this.applyBackground();
+        this.showNotification('背景设置已更新', 'success');
+      },
+      
+      // 应用背景设置
+      applyBackground() {
+        const appBody = document.getElementById('appBody');
+        
+        // 清除所有背景相关样式
+        appBody.style.backgroundColor = '';
+        appBody.style.backgroundImage = '';
+        appBody.classList.remove('bg-with-overlay');
+        
+        if (this.data.background.type === 'color') {
+          appBody.style.backgroundColor = this.data.background.value;
+        } else if (this.data.background.type === 'image') {
+          appBody.style.backgroundImage = `url(${this.data.background.value})`;
+          appBody.style.backgroundSize = 'cover';
+          appBody.style.backgroundPosition = 'center';
+          appBody.style.backgroundAttachment = 'fixed';
+          appBody.classList.add('bg-with-overlay');
+        }
+      },
+      
+      // 添加推荐视频
+      addRecommendedVideo(platform, videoId) {
+        // 验证平台和视频ID
+        if (!platforms[platform] || !platforms[platform].pattern.test(videoId)) {
+          return false;
+        }
+        
+        // 检查是否已存在
+        if (this.data.recommendedVideos.some(video => 
+          video.platform === platform && video.id === videoId
+        )) {
+          return false;
+        }
+        
+        // 生成视频信息
+        const videoInfo = this.generateVideoInfo(platform, videoId);
+        
+        // 添加新视频
+        this.data.recommendedVideos.push({
+          platform,
+          id: videoId,
+          addedAt: new Date().toISOString(),
+          ...videoInfo
+        });
+        
+        this.saveRecommendedVideos();
+        return true;
+      },
+      
+      // 移除推荐视频
+      removeRecommendedVideo(platform, videoId) {
+        this.data.recommendedVideos = this.data.recommendedVideos.filter(
+          video => !(video.platform === platform && video.id === videoId)
+        );
+        this.saveRecommendedVideos();
+      },
+      
+      // 管理员登录
+      adminLogin(username, password) {
+        // 验证凭据
+        if (username === 'crazycba' && password === '419904') {
+          this.data.isAdminLoggedIn = true;
+          this.data.lastLoginTime = new Date().toISOString();
+          localStorage.setItem('adminLoggedIn', 'true');
+          localStorage.setItem('lastLoginTime', this.data.lastLoginTime);
+          document.getElementById('lastLoginTime').textContent = new Date(this.data.lastLoginTime).toLocaleString();
+          this.updateAdminUI();
+          return true;
+        }
+        return false;
+      },
+      
+      // 管理员登出
+      adminLogout() {
+        this.data.isAdminLoggedIn = false;
+        localStorage.setItem('adminLoggedIn', 'false');
+        this.updateAdminUI();
+      },
+      
+      // 设置当前平台
+      setCurrentPlatform(platform) {
+        if (platforms[platform]) {
+          this.data.currentPlatform = platform;
+          document.getElementById('videoIdInput').placeholder = platforms[platform].placeholder;
+          
+          // 更新平台按钮状态
+          document.querySelectorAll('.platform-btn').forEach(btn => {
+            if (btn.getAttribute('data-platform') === platform) {
+              btn.classList.add('active', 'ring-2', `ring-platform-${platform}`);
+            } else {
+              btn.classList.remove('active', 'ring-2', `ring-platform-${platform}`);
+            }
+          });
+          
+          // 更新管理员面板中的平台按钮
+          document.querySelectorAll('.admin-platform-btn').forEach(btn => {
+            if (btn.getAttribute('data-platform') === platform) {
+              btn.classList.add('active', 'ring-2', `ring-platform-${platform}`);
+            } else {
+              btn.classList.remove('active', 'ring-2', `ring-platform-${platform}`);
+            }
+          });
+        }
+      },
+      
+      // 更新管理员相关UI
+      updateAdminUI() {
+        const adminBtn = document.getElementById('adminBtn');
+        const adminBtnText = document.getElementById('adminBtnText');
+        const recommendedCount = document.getElementById('recommendedCount');
+        
+        recommendedCount.textContent = this.data.recommendedVideos.length;
+        
+        if (this.data.isAdminLoggedIn) {
+          adminBtnText.textContent = '管理面板';
+        } else {
+          adminBtnText.textContent = '管理员';
+        }
+        
+        // 更新推荐视频展示
+        this.renderRecommendedVideos();
+        // 更新管理员面板中的视频列表
+        this.renderAdminVideoList();
+      },
+      
+      // 渲染推荐视频展示
+      renderRecommendedVideos() {
+        const container = document.getElementById('recommendedVideos');
+        
+        if (this.data.recommendedVideos.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full text-center py-12 text-gray-400">
+              <i class="fa fa-film text-4xl mb-4 text-gray-600"></i>
+              <p>管理员尚未添加推荐视频</p>
+            </div>
+          `;
+          return;
+        }
+        
+        let html = '';
+        this.data.recommendedVideos.forEach(video => {
+          const platform = platforms[video.platform];
+          html += `
+            <div class="video-card bg-dark-700 rounded-xl overflow-hidden group">
+              <div class="relative">
+                <img src="https://picsum.photos/600/340?random=${video.id.substring(0, 6)}" alt="${video.title}的缩略图" class="w-full aspect-video object-cover">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button class="playVideoBtn w-16 h-16 bg-accent-cyan/90 rounded-full flex items-center justify-center text-white transform scale-90 group-hover:scale-100 transition-transform" 
+                          data-platform="${video.platform}" data-id="${video.id}">
+                    <i class="fa fa-play text-2xl"></i>
+                  </button>
+                </div>
+                <span class="absolute top-2 left-2 ${platform.badgeClass} text-xs px-2 py-1 rounded">${platform.badgeText}</span>
+                <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">${video.duration}</span>
+              </div>
+              <div class="p-4">
+                <h3 class="text-white font-medium mb-2 line-clamp-2">${video.title}</h3>
+                <p class="text-gray-400 text-sm mb-2 line-clamp-1">${video.author}</p>
+                <div class="flex justify-between text-gray-500 text-sm">
+                  <span><i class="fa fa-eye mr-1"></i> ${video.views}</span>
+                  <span><i class="fa fa-calendar-o mr-1"></i> ${video.date}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        container.innerHTML = html;
+        
+        // 添加播放按钮事件
+        document.querySelectorAll('.playVideoBtn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const platform = this.getAttribute('data-platform');
+            const videoId = this.getAttribute('data-id');
+            
+            // 设置当前平台并加载视频
+            state.setCurrentPlatform(platform);
+            document.getElementById('videoIdInput').value = videoId;
+            state.loadVideo();
+            
+            // 滚动到视频区域
+            document.getElementById('videoContainer').scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          });
+        });
+      },
+      
+      // 渲染管理员面板中的视频列表
+      renderAdminVideoList() {
+        const container = document.getElementById('videoList');
+        
+        if (this.data.recommendedVideos.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-4 text-gray-400 text-sm">
+              暂无推荐视频，请添加
+            </div>
+          `;
+          return;
+        }
+        
+        let html = '';
+        this.data.recommendedVideos.forEach(video => {
+          const platform = platforms[video.platform];
+          html += `
+            <div class="flex items-center justify-between bg-dark-800 rounded-lg p-3 hover:bg-dark-600/50 transition-colors">
+              <div class="flex flex-col">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-8 ${platform.badgeClass} rounded flex items-center justify-center text-xs text-white">
+                    ${platform.badgeText}
+                  </div>
+                  <span class="text-gray-200 font-medium">${video.id}</span>
+                </div>
+                <div class="text-xs text-gray-400 ml-15 mt-1 line-clamp-1">
+                  ${video.title}
+                </div>
+              </div>
+              <button class="deleteVideoBtn text-gray-400 hover:text-red-500 transition-colors p-2" 
+                      data-platform="${video.platform}" data-id="${video.id}" title="删除">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          `;
+        });
+        
+        container.innerHTML = html;
+        
+        // 添加删除按钮事件
+        document.querySelectorAll('.deleteVideoBtn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const platform = this.getAttribute('data-platform');
+            const videoId = this.getAttribute('data-id');
+            
+            state.showConfirm(
+              '删除推荐视频', 
+              `您确定要删除${platforms[platform].name}视频 ${videoId} 吗？此操作不可恢复。`,
+              (confirmed) => {
+                if (confirmed) {
+                  state.removeRecommendedVideo(platform, videoId);
+                  state.updateAdminUI();
+                  state.showNotification('视频已从推荐列表中删除', 'success');
+                }
+              }
+            );
+          });
+        });
+      },
+      
+      // 生成随机视频信息（模拟从API获取）
+      generateVideoInfo(platform, videoId) {
+        // 模拟视频标题库
+        const titleTemplates = [
+          "超震撼的视觉效果演示",
+          "深度解析：背后的故事",
+          "手把手教你制作专业内容",
+          "全网最详细的教程",
+          "年度最佳集锦",
+          "不为人知的秘密揭露",
+          "挑战30天完成这个项目",
+          "从入门到精通的完整指南"
+        ];
+        
+        // 模拟UP主名称库
+        const authors = [
+          "创作者一号",
+          "视频达人",
+          "专业解说",
+          "技术分享官",
+          "生活记录者",
+          "美食探店",
+          "旅行博主"
+        ];
+        
+        // 随机生成视频时长
+        const hours = Math.floor(Math.random() * 2);
+        const minutes = hours > 0 ? Math.floor(Math.random() * 60) : Math.floor(Math.random() * 50) + 5;
+        const seconds = Math.floor(Math.random() * 60);
+        let duration = '';
+        if (hours > 0) {
+          duration += `${hours}:`;
+        }
+        duration += `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // 随机生成观看次数
+        const views = Math.floor(Math.random() * 1000000);
+        const viewsFormatted = views >= 10000 ? `${(views / 10000).toFixed(1)}万` : views;
+        
+        // 随机生成日期
+        const today = new Date();
+        const randomDays = Math.floor(Math.random() * 365);
+        const videoDate = new Date(today.setDate(today.getDate() - randomDays));
+        const dateFormatted = videoDate.toLocaleDateString();
+        
+        // 随机生成描述
+        const descriptions = [
+          "这是一个非常精彩的视频，包含了丰富的内容和深刻的见解，相信你一定会喜欢！",
+          "制作这个视频花费了我大量的时间和精力，希望能给大家带来价值。如果喜欢请点赞关注哦！",
+          "感谢大家的观看，这是我最新的作品，欢迎在评论区留下你的想法和建议。",
+          "本视频详细介绍了相关内容，适合初学者入门学习，也适合有经验的朋友参考。"
+        ];
+        
+        return {
+          title: `${titleTemplates[Math.floor(Math.random() * titleTemplates.length)]}`,
+          author: authors[Math.floor(Math.random() * authors.length)],
+          views: `${viewsFormatted} 次观看`,
+          date: dateFormatted,
+          duration: duration,
+          description: descriptions[Math.floor(Math.random() * descriptions.length)]
+        };
+      },
+      
+      // 加载视频
+      loadVideo() {
+        const videoId = document.getElementById('videoIdInput').value.trim();
+        const platform = this.data.currentPlatform;
+        
+        if (!videoId) {
+          this.showNotification('请输入视频ID', 'warning');
+          return;
+        }
+        
+        // 验证视频ID格式
+        if (!platforms[platform].pattern.test(videoId)) {
+          this.showNotification(`请输入有效的${platforms[platform].name}视频ID`, 'error');
+          return;
+        }
+        
+        // 显示加载状态
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
+        const videoError = document.getElementById('videoError');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoInfo = document.getElementById('videoInfo');
+        
+        videoPlaceholder.classList.remove('hidden');
+        videoError.classList.add('hidden');
+        videoPlayer.classList.add('hidden');
+        videoInfo.classList.add('hidden');
+        
+        // 构建嵌入链接
+        const embedUrl = platforms[platform].embedUrl(videoId);
+        
+        // 设置iframe src
+        videoPlayer.src = embedUrl;
+        
+        // 监听iframe加载完成事件
+        let loadTimer;
+        const checkIfLoaded = () => {
+          try {
+            // 尝试访问iframe内容，如果能访问则说明加载完成
+            if (videoPlayer.contentWindow && videoPlayer.contentWindow.document) {
+              clearTimeout(loadTimer);
+              this.onVideoLoaded(platform, videoId);
+              return true;
+            }
+          } catch (e) {
+            // 跨域访问会抛出异常，也说明加载完成
+            clearTimeout(loadTimer);
+            this.onVideoLoaded(platform, videoId);
+            return true;
+          }
+          return false;
+        };
+        
+        // 定时检查是否加载完成
+        loadTimer = setInterval(checkIfLoaded, 300);
+        
+        // 10秒后如果还没加载完成，显示错误
+        setTimeout(() => {
+          if (loadTimer) {
+            clearInterval(loadTimer);
+            videoPlaceholder.classList.add('hidden');
+            videoError.classList.remove('hidden');
+            videoPlayer.classList.add('hidden');
+            document.getElementById('errorMessage').textContent = 
+              `无法加载${platforms[platform].name}视频，请检查ID是否正确或稍后再试`;
+            this.showNotification('视频加载超时', 'error');
+          }
+        }, 10000);
+      },
+      
+      // 视频加载完成处理
+      onVideoLoaded(platform, videoId) {
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoInfo = document.getElementById('videoInfo');
+        
+        videoPlaceholder.classList.add('hidden');
+        videoPlayer.classList.remove('hidden');
+        
+        // 生成并显示视频信息
+        const videoInfoData = this.generateVideoInfo(platform, videoId);
+        const platformInfo = platforms[platform];
+        
+        document.getElementById('platformBadge').className = `text-xs px-2 py-1 rounded-full ${platformInfo.badgeClass}`;
+        document.getElementById('platformBadge').textContent = platformInfo.badgeText;
+        document.getElementById('videoTitle').textContent = videoInfoData.title;
+        document.getElementById('videoAuthor').textContent = videoInfoData.author;
+        document.getElementById('videoViews').textContent = videoInfoData.views;
+        document.getElementById('videoDate').textContent = videoInfoData.date;
+        document.getElementById('videoDuration').textContent = videoInfoData.duration;
+        document.getElementById('videoDescription').textContent = videoInfoData.description;
+        
+        videoInfo.classList.remove('hidden');
+        this.showNotification('视频加载成功', 'success');
+      },
+      
+      // 显示通知
+      showNotification(message, type = 'info') {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.classList.remove('hidden', 'bg-blue-500', 'bg-green-500', 'bg-red-500', 'bg-yellow-500');
+        
+        // 设置通知类型样式
+        switch(type) {
+          case 'success':
+            notification.classList.add('bg-green-500');
+            break;
+          case 'error':
+            notification.classList.add('bg-red-500');
+            break;
+          case 'warning':
+            notification.classList.add('bg-yellow-500');
+            break;
+          default:
+            notification.classList.add('bg-blue-500');
+        }
+        
+        // 3秒后自动隐藏
+        setTimeout(() => {
+          notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+          setTimeout(() => {
+            notification.classList.add('hidden');
+            notification.classList.remove('opacity-0');
+          }, 300);
+        }, 3000);
+      },
+      
+      // 显示确认对话框
+      showConfirm(title, message, confirmCallback) {
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmTitle = document.getElementById('confirmTitle');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmOk = document.getElementById('confirmOk');
+        const confirmCancel = document.getElementById('confirmCancel');
+        
+        confirmTitle.textContent = title;
+        confirmMessage.textContent = message;
+        confirmModal.classList.remove('hidden');
+        
+        // 确认按钮事件
+        const okHandler = () => {
+          confirmModal.classList.add('hidden');
+          confirmOk.removeEventListener('click', okHandler);
+          confirmCancel.removeEventListener('click', cancelHandler);
+          if (typeof confirmCallback === 'function') {
+            confirmCallback(true);
+          }
+        };
+        
+        // 取消按钮事件
+        const cancelHandler = () => {
+          confirmModal.classList.add('hidden');
+          confirmOk.removeEventListener('click', okHandler);
+          confirmCancel.removeEventListener('click', cancelHandler);
+          if (typeof confirmCallback === 'function') {
+            confirmCallback(false);
+          }
+        };
+        
+        confirmOk.addEventListener('click', okHandler);
+        confirmCancel.addEventListener('click', cancelHandler);
+      },
+      
+      // 打开管理员登录模态框
+      openAdminLogin() {
+        const adminLoginModal = document.getElementById('adminLoginModal');
+        adminLoginModal.classList.remove('hidden');
+        // 添加动画效果
+        setTimeout(() => {
+          adminLoginModal.querySelector('div').classList.add('scale-100');
+          adminLoginModal.querySelector('div').classList.remove('scale-95');
+        }, 10);
+      },
+      
+      // 打开管理员面板
+      openAdminPanel() {
+        const adminPanelModal = document.getElementById('adminPanelModal');
+        adminPanelModal.classList.remove('hidden');
+        // 添加动画效果
+        setTimeout(() => {
+          adminPanelModal.querySelector('div').classList.add('scale-100');
+          adminPanelModal.querySelector('div').classList.remove('scale-95');
+        }, 10);
+      },
+      
+      // 关闭所有模态框
+      closeAllModals() {
+        // 为所有模态框添加关闭动画
+        [
+          document.getElementById('adminLoginModal'), 
+          document.getElementById('adminPanelModal'),
+          document.getElementById('confirmModal')
+        ].forEach(modal => {
+          if (!modal.classList.contains('hidden')) {
+            modal.querySelector('div').classList.add('scale-95');
+            modal.querySelector('div').classList.remove('scale-100');
+            setTimeout(() => {
+              modal.classList.add('hidden');
+              document.getElementById('loginMessage').classList.add('hidden');
+            }, 300);
+          }
+        });
+      }
+    };
+
+    // 初始化事件监听
+    document.addEventListener('DOMContentLoaded', () => {
+      // 初始化状态
+      state.init();
+      
+      // 导航栏滚动效果
+      window.addEventListener('scroll', () => {
+        const navbar = document.getElementById('navbar');
+        if (window.scrollY > 50) {
+          navbar.classList.add('py-2', 'shadow-lg');
+          navbar.classList.remove('py-3');
+        } else {
+          navbar.classList.add('py-3');
+          navbar.classList.remove('py-2', 'shadow-lg');
+        }
+      });
+      
+      // 移动端菜单切换
+      document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.toggle('hidden');
+      });
+      
+      // 管理员按钮点击事件
+      document.getElementById('adminBtn').addEventListener('click', () => {
+        if (state.data.isAdminLoggedIn) {
+          state.openAdminPanel();
+        } else {
+          state.openAdminLogin();
+        }
+      });
+      
+      // 关闭模态框按钮
+      document.querySelectorAll('.closeModalBtn').forEach(btn => {
+        btn.addEventListener('click', () => state.closeAllModals());
+      });
+      
+      // 管理员登录表单提交
+      document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('adminUsername').value;
+        const password = document.getElementById('adminPassword').value;
+        
+        if (state.adminLogin(username, password)) {
+          const loginMessage = document.getElementById('loginMessage');
+          loginMessage.textContent = '登录成功，正在进入管理面板...';
+          loginMessage.classList.remove('hidden', 'text-red-500');
+          loginMessage.classList.add('text-green-500');
+          
+          // 1秒后关闭登录框，打开管理面板
+          setTimeout(() => {
+            state.closeAllModals();
+            setTimeout(() => state.openAdminPanel(), 300);
+            state.showNotification('管理员登录成功', 'success');
+          }, 1000);
+        } else {
+          const loginMessage = document.getElementById('loginMessage');
+          loginMessage.textContent = '用户名或密码错误';
+          loginMessage.classList.remove('hidden', 'text-green-500');
+          loginMessage.classList.add('text-red-500');
+        }
+      });
+      
+      // 管理员登出
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        state.showConfirm(
+          '退出登录', 
+          '您确定要退出管理员登录吗？',
+          (confirmed) => {
+            if (confirmed) {
+              state.adminLogout();
+              state.closeAllModals();
+              state.showNotification('已退出管理员登录', 'info');
+            }
+          }
+        );
+      });
+      
+      // 添加推荐视频
+      document.getElementById('addVideoBtn').addEventListener('click', () => {
+        const videoId = document.getElementById('newVideoId').value.trim();
+        const platform = state.data.currentPlatform;
+        
+        if (!videoId) {
+          state.showNotification('请输入视频ID', 'warning');
+          return;
+        }
+        
+        if (state.addRecommendedVideo(platform, videoId)) {
+          document.getElementById('newVideoId').value = '';
+          state.updateAdminUI();
+          state.showNotification('视频已添加到推荐列表', 'success');
+        } else {
+          state.showNotification(`无效的${platforms[platform].name}视频ID或视频已存在`, 'error');
+        }
+      });
+      
+      // 平台选择按钮
+      document.querySelectorAll('.platform-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const platform = btn.getAttribute('data-platform');
+          state.setCurrentPlatform(platform);
+        });
+      });
+      
+      // 管理员面板平台选择按钮
+      document.querySelectorAll('.admin-platform-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const platform = btn.getAttribute('data-platform');
+          state.setCurrentPlatform(platform);
+        });
+      });
+      
+      // 背景类型切换
+      document.querySelectorAll('input[name="bgType"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          const bgColorSettings = document.getElementById('bgColorSettings');
+          const bgImageSettings = document.getElementById('bgImageSettings');
+          
+          if (radio.value === 'color') {
+            bgColorSettings.classList.remove('hidden');
+            bgImageSettings.classList.add('hidden');
+          } else {
+            bgColorSettings.classList.add('hidden');
+            bgImageSettings.classList.remove('hidden');
+          }
+        });
+      });
+      
+      // 颜色选择器同步
+      const bgColorPicker = document.getElementById('bgColorPicker');
+      const bgColorCode = document.getElementById('bgColorCode');
+      
+      bgColorPicker.addEventListener('input', () => {
+        bgColorCode.value = bgColorPicker.value;
+      });
+      
+      bgColorCode.addEventListener('input', () => {
+        // 简单验证颜色格式
+        if (/^#[0-9A-Fa-f]{6}$/.test(bgColorCode.value)) {
+          bgColorPicker.value = bgColorCode.value;
+        }
+      });
+      
+      // 预设颜色选择
+      document.querySelectorAll('.preset-color').forEach(colorBtn => {
+        colorBtn.addEventListener('click', () => {
+          const color = colorBtn.getAttribute('data-color');
+          bgColorPicker.value = color;
+          bgColorCode.value = color;
+        });
+      });
+      
+      // 预设图片选择
+      document.querySelectorAll('.preset-image').forEach(imgBtn => {
+        imgBtn.addEventListener('click', () => {
+          const url = imgBtn.getAttribute('data-url');
+          document.getElementById('bgImageUrl').value = url;
+        });
+      });
+      
+      // 应用颜色背景
+      document.getElementById('applyColorBtn').addEventListener('click', () => {
+        if (/^#[0-9A-Fa-f]{6}$/.test(bgColorCode.value)) {
+          state.data.background = {
+            type: 'color',
+            value: bgColorCode.value
+          };
+          state.saveBackground();
+        } else {
+          state.showNotification('请输入有效的颜色代码（例如：#0F0F12）', 'error');
+        }
+      });
+      
+      // 应用图片背景
+      document.getElementById('applyImageBtn').addEventListener('click', () => {
+        const url = document.getElementById('bgImageUrl').value.trim();
+        if (url) {
+          state.data.background = {
+            type: 'image',
+            value: url
+          };
+          state.saveBackground();
+        } else {
+          state.showNotification('请输入图片URL', 'error');
+        }
+      });
+      
+      // 重置背景为默认
+      document.getElementById('resetBgBtn').addEventListener('click', () => {
+        state.showConfirm(
+          '重置背景', 
+          '您确定要将背景重置为默认设置吗？',
+          (confirmed) => {
+            if (confirmed) {
+              state.data.background = {
+                type: 'color',
+                value: '#0F0F12'
+              };
+              
+              bgColorPicker.value = '#0F0F12';
+              bgColorCode.value = '#0F0F12';
+              document.getElementById('bgImageUrl').value = '';
+              document.querySelector('input[name="bgType"][value="color"]').checked = true;
+              document.getElementById('bgColorSettings').classList.remove('hidden');
+              document.getElementById('bgImageSettings').classList.add('hidden');
+              
+              state.saveBackground();
+            }
+          }
+        );
+      });
+      
+      // 加载视频按钮
+      document.getElementById('loadVideoBtn').addEventListener('click', () => state.loadVideo());
+      document.getElementById('retryLoadBtn').addEventListener('click', () => state.loadVideo());
+      
+      // 按Enter键加载视频
+      document.getElementById('videoIdInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          state.loadVideo();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+    
